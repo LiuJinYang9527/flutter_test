@@ -1,56 +1,76 @@
-import 'package:flutter/material.dart';
-import "package:dio/dio.dart";
-import "package:flutter_shop/config/httpHeaders.dart";
+import "package:flutter/material.dart";
+import "../service/service_method.dart";
+import "package:flutter_swiper/flutter_swiper.dart";
+import "dart:convert";
 
 class HomePage extends StatefulWidget {
+  final Widget child;
+
+  HomePage({Key key, this.child}) : super(key: key);
+
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  String showText = '没有数据';
+  String homePageContent = '正在获取数据';
+
+  // @override
+  // void initState() {
+  //   getHomePageContent().then((res){
+  //     setState(() {
+  //      homePageContent = res.toString(); 
+  //     });
+  //   });
+  //   super.initState();
+  // }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+       child: Scaffold(
+         appBar: AppBar(
+           title:Text('Melon'),
+         ),
+         body:FutureBuilder(
+           future: getHomePageContent(),
+           builder: (context,snapshot){
+             if(snapshot.hasData){
+               var data = json.decode(snapshot.data.toString());
+               List <Map> swiper = (data['data']['slides'] as List).cast();
+               return Column(
+                 children: <Widget>[
+                   SwiperDiy(swiperDataList:swiper)
+                 ],
+               );
+             }else{
+               return Center(
+                 child: Text('加载中。。。')
+               );
+             }
+           },
+         )
+       ),
+    );
+  }
+}
+
+//首页轮播组件
+class SwiperDiy extends StatelessWidget {
+  final List swiperDataList;
+
+  SwiperDiy({Key key, this.swiperDataList}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Scaffold(
-      appBar: AppBar(title: Text("请求数据")),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            RaisedButton(
-                onPressed: () {
-                  _jike();
-                },
-                child: Text('请求数据')),
-            Text('$showText')
-          ],
-        ),
+      height:333,
+      child: Swiper(
+        itemBuilder: (BuildContext context,int index){
+          return Image.network("${swiperDataList[index].url}",fit:BoxFit.fill);
+        },
+      itemCount: swiperDataList.length,
+      pagination: SwiperPagination(),
+      autoplay: true,
       ),
-    ));
-  }
-
-  void _jike() {
-    print('开始向极客时间请求数据');
-
-    getHttp().then((val) {
-      setState(() {
-        showText = val['data'].toString();
-      });
-    });
-  }
-
-  Future getHttp() async {
-    try {
-      Response response;
-      Dio dio = new Dio();
-      dio.options.headers = httpHeaders;
-      print(httpHeaders);
-      response =
-          await dio.get("https://time.geekbang.org/serv/v1/column/newAll");
-      print(response);
-      return response.data;
-    } catch (e) {
-      return print(e);
-    }
+    );
   }
 }
