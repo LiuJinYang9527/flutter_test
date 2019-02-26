@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "../service/service_method.dart";
 import "package:flutter_swiper/flutter_swiper.dart";
 import "dart:convert";
+import "package:flutter_screenutil/flutter_screenutil.dart";
 
 class HomePage extends StatefulWidget {
   final Widget child;
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   // void initState() {
   //   getHomePageContent().then((res){
   //     setState(() {
-  //      homePageContent = res.toString(); 
+  //      homePageContent = res.toString();
   //     });
   //   });
   //   super.initState();
@@ -26,29 +27,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-       child: Scaffold(
-         appBar: AppBar(
-           title:Text('Melon'),
-         ),
-         body:FutureBuilder(
-           future: getHomePageContent(),
-           builder: (context,snapshot){
-             if(snapshot.hasData){
-               var data = json.decode(snapshot.data.toString());
-               List <Map> swiper = (data['data']['slides'] as List).cast();
-               return Column(
-                 children: <Widget>[
-                   SwiperDiy(swiperDataList:swiper)
-                 ],
-               );
-             }else{
-               return Center(
-                 child: Text('加载中。。。')
-               );
-             }
-           },
-         )
-       ),
+      child: Scaffold(
+          appBar: AppBar(
+            title: Text('Melon'),
+          ),
+          body: FutureBuilder(
+            future: getHomePageContent(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                var data = json.decode(snapshot.data.toString());
+                List<Map> swiper = (data['data']['slides'] as List).cast();
+                return Column(
+                  children: <Widget>[SwiperDiy(swiperDataList: swiper)],
+                );
+              } else {
+                return Center(child: Text('加载中。。。'));
+              }
+            },
+          )),
     );
   }
 }
@@ -61,15 +57,21 @@ class SwiperDiy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
+    print('设备像素密度${ScreenUtil.pixelRatio}');
+    print('设备的高${ScreenUtil.screenHeight}');
+    print('设备的宽${ScreenUtil.screenWidth}');
     return Container(
-      height:333,
+      height: ScreenUtil().setHeight(333),
+      width: ScreenUtil().setWidth(750),
       child: Swiper(
-        itemBuilder: (BuildContext context,int index){
-          return Image.network("${swiperDataList[index].url}",fit:BoxFit.fill);
+        itemBuilder: (BuildContext context, int index) {
+          return Image.network("${swiperDataList[index]['image']}",
+              fit: BoxFit.fill);
         },
-      itemCount: swiperDataList.length,
-      pagination: SwiperPagination(),
-      autoplay: true,
+        itemCount: swiperDataList.length,
+        pagination: SwiperPagination(),
+        autoplay: true,
       ),
     );
   }
