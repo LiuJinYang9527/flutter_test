@@ -3,6 +3,7 @@ import "../service/service_method.dart";
 import "package:flutter_swiper/flutter_swiper.dart";
 import "dart:convert";
 import "package:flutter_screenutil/flutter_screenutil.dart";
+import "package:url_launcher/url_launcher.dart";
 
 class HomePage extends StatefulWidget {
   final Widget child;
@@ -37,13 +38,19 @@ class _HomePageState extends State<HomePage> {
               if (snapshot.hasData) {
                 var data = json.decode(snapshot.data.toString());
                 List<Map> swiper = (data['data']['slides'] as List).cast();
-                List<Map> navigatorList = (data['data']['category'] as List).cast();
-                String adPicture = data['data']['advertesPicture']['PICTURE_ADDRESS'];
+                List<Map> navigatorList =
+                    (data['data']['category'] as List).cast();
+                String adPicture =
+                    data['data']['advertesPicture']['PICTURE_ADDRESS'];
+                String leaderImage = data['data']['shopInfo']['leaderImage'];
+                String leaderPhone = data['data']['shopInfo']['leaderPhone'];
                 return Column(
                   children: <Widget>[
                     SwiperDiy(swiperDataList: swiper),
                     TopNavigator(navigatorList: navigatorList),
-                    AdBanner(adPicture:adPicture)
+                    AdBanner(adPicture: adPicture),
+                    LeaderPhone(
+                        leaderImage: leaderImage, leaderPhone: leaderPhone)
                   ],
                 );
               } else {
@@ -63,9 +70,9 @@ class SwiperDiy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('设备像素密度${ScreenUtil.pixelRatio}');
-    print('设备的高${ScreenUtil.screenHeight}');
-    print('设备的宽${ScreenUtil.screenWidth}');
+    // print('设备像素密度${ScreenUtil.pixelRatio}');
+    // print('设备的高${ScreenUtil.screenHeight}');
+    // print('设备的宽${ScreenUtil.screenWidth}');
     return Container(
       height: ScreenUtil().setHeight(333),
       width: ScreenUtil().setWidth(750),
@@ -104,23 +111,23 @@ class TopNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(this.navigatorList.length>10){
+    if (this.navigatorList.length > 10) {
       this.navigatorList.removeRange(10, navigatorList.length);
     }
     return Container(
-      height:ScreenUtil().setHeight(320),
-      padding:EdgeInsets.all(3.0),
-      child: GridView.count(
-        crossAxisCount: 5,
-        padding:EdgeInsets.all(5.0),
-        children: navigatorList.map((item){
-          return _gridViewItemUI(context, item);
-        }).toList(),
-      )
-    );
+        height: ScreenUtil().setHeight(320),
+        padding: EdgeInsets.all(3.0),
+        child: GridView.count(
+          crossAxisCount: 5,
+          padding: EdgeInsets.all(5.0),
+          children: navigatorList.map((item) {
+            return _gridViewItemUI(context, item);
+          }).toList(),
+        ));
   }
 }
 
+//广告布局
 class AdBanner extends StatelessWidget {
   final String adPicture;
 
@@ -128,8 +135,32 @@ class AdBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Container(child: Image.network(adPicture));
+  }
+}
+
+//店长电话模块
+class LeaderPhone extends StatelessWidget {
+  final String leaderImage; //店长图片
+  final String leaderPhone; // 店长电话
+
+  LeaderPhone({Key key, this.leaderImage, this.leaderPhone}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      child: Image.network(adPicture)
+      child: InkWell(
+        onTap: lauchURL,
+        child: Image.network(leaderImage),
+      ),
     );
+  }
+  void lauchURL() async {
+    String url = 'tel:'+leaderPhone;
+    if(await canLaunch(url)){
+      await launch(url);
+    }else{
+      throw 'url不能进行访问';
+    }
   }
 }
