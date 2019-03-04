@@ -13,18 +13,20 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
+  //保持页面效果
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    print('1111');
+  }
+
   String homePageContent = '正在获取数据';
 
-  // @override
-  // void initState() {
-  //   getHomePageContent().then((res){
-  //     setState(() {
-  //      homePageContent = res.toString();
-  //     });
-  //   });
-  //   super.initState();
-  // }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -198,8 +200,7 @@ class Recommed extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
             color: Colors.white,
-            border:
-                Border(left: BorderSide(width: 0.5, color: Colors.black12))),
+            border: Border(left: BorderSide(width: 1, color: Colors.black12))),
         child: Column(
           children: <Widget>[
             Image.network(recommendList[index]['image']),
