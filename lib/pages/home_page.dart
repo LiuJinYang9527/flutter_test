@@ -29,13 +29,14 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    var formData = {"lon": "113.6313915479", "lat": "34.7533581487"};
     return Container(
       child: Scaffold(
           appBar: AppBar(
             title: Text('Melon'),
           ),
           body: FutureBuilder(
-            future: getHomePageContent(),
+            future: reqeust('homePageContent', formData),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 var data = json.decode(snapshot.data.toString());
@@ -48,18 +49,35 @@ class _HomePageState extends State<HomePage>
                 String leaderPhone = data['data']['shopInfo']['leaderPhone'];
                 List<Map> recommnedList =
                     (data['data']['recommend'] as List).cast();
+                String floor1Title =
+                    data['data']['floor1Pic']['PICTURE_ADDRESS'];
+                String floor2Title =
+                    data['data']['floor2Pic']['PICTURE_ADDRESS'];
+                String floor3Title =
+                    data['data']['floor3Pic']['PICTURE_ADDRESS'];
+                List<Map> floor1 = (data['data']['floor1'] as List).cast();
+                List<Map> floor2 = (data['data']['floor2'] as List).cast();
+                List<Map> floor3 = (data['data']['floor3'] as List).cast();
                 //预防页面超出一屏时出现警告 加上singelChildScrollView
                 return SingleChildScrollView(
+                    padding: EdgeInsets.only(bottom: 10.0),
                     child: Column(
-                  children: <Widget>[
-                    SwiperDiy(swiperDataList: swiper),
-                    TopNavigator(navigatorList: navigatorList),
-                    AdBanner(adPicture: adPicture),
-                    LeaderPhone(
-                        leaderImage: leaderImage, leaderPhone: leaderPhone),
-                    Recommed(recommendList: recommnedList)
-                  ],
-                ));
+                      children: <Widget>[
+                        SwiperDiy(swiperDataList: swiper),
+                        TopNavigator(navigatorList: navigatorList),
+                        AdBanner(adPicture: adPicture),
+                        LeaderPhone(
+                            leaderImage: leaderImage, leaderPhone: leaderPhone),
+                        Recommed(recommendList: recommnedList),
+                        FloorTitle(picture_address: floor1Title),
+                        FloorContent(floorGoodsList: floor1),
+                        FloorTitle(picture_address: floor2Title),
+                        FloorContent(floorGoodsList: floor2),
+                        FloorTitle(picture_address: floor3Title),
+                        FloorContent(floorGoodsList: floor3),
+                        HotGoods()
+                      ],
+                    ));
               } else {
                 return Center(child: Text('加载中。。。'));
               }
@@ -216,7 +234,7 @@ class Recommed extends StatelessWidget {
 
   Widget _recommedList() {
     return Container(
-      height: ScreenUtil().setHeight(330),
+      height: ScreenUtil().setHeight(348),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: recommendList.length,
@@ -230,11 +248,99 @@ class Recommed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: ScreenUtil().setHeight(380),
+      // height: ScreenUtil().setHeight(350),
       margin: EdgeInsets.only(top: 10.0),
       child: Column(
         children: <Widget>[_titleWidget(), _recommedList()],
       ),
+    );
+  }
+}
+
+//楼层标题
+
+class FloorTitle extends StatelessWidget {
+  final String picture_address;
+
+  FloorTitle({Key key, this.picture_address}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: EdgeInsets.fromLTRB(0, 8.0, 0, 0),
+        child: Image.network(picture_address));
+  }
+}
+
+//楼层商品列表
+
+class FloorContent extends StatelessWidget {
+  final List floorGoodsList;
+
+  FloorContent({Key key, this.floorGoodsList}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: <Widget>[_firstRow(), _otherGoods()],
+      ),
+    );
+  }
+
+  Widget _firstRow() {
+    return Row(
+      children: <Widget>[
+        _goodsItem(floorGoodsList[0]),
+        Column(
+          children: <Widget>[
+            _goodsItem(floorGoodsList[1]),
+            _goodsItem(floorGoodsList[2]),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _otherGoods() {
+    return Row(
+      children: <Widget>[
+        _goodsItem(floorGoodsList[3]),
+        _goodsItem(floorGoodsList[4]),
+      ],
+    );
+  }
+
+  Widget _goodsItem(Map goods) {
+    return Container(
+      width: ScreenUtil().setWidth(375),
+      child: InkWell(
+        onTap: () {
+          print('点击了楼层商品');
+        },
+        child: Image.network(goods['image']),
+      ),
+    );
+  }
+}
+
+class HotGoods extends StatefulWidget {
+  _HotGoods createState() => _HotGoods();
+}
+
+class _HotGoods extends State<HotGoods> {
+  @override
+  void initState() {
+    super.initState();
+    reqeust('homePageBelowConten', 1).then((val) {
+      print(val);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('ceshi'),
     );
   }
 }
