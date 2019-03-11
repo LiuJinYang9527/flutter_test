@@ -4,6 +4,7 @@ import "package:flutter_swiper/flutter_swiper.dart";
 import "dart:convert";
 import "package:flutter_screenutil/flutter_screenutil.dart";
 import "package:url_launcher/url_launcher.dart";
+import "package:flutter_easyrefresh/easy_refresh.dart";
 
 class HomePage extends StatefulWidget {
   final Widget child;
@@ -15,14 +16,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin {
+  int page = 1;
+  List<Map> hotGoodsList = [];
+  GlobalKey<RefreshFooterState> _footerkey =
+      new GlobalKey<RefreshFooterState>();
   //保持页面效果
   @override
   bool get wantKeepAlive => true;
 
   @override
   void initState() {
+    _getHotGoods();
     super.initState();
-    print('1111');
   }
 
   String homePageContent = '正在获取数据';
@@ -36,7 +41,7 @@ class _HomePageState extends State<HomePage>
             title: Text('Melon'),
           ),
           body: FutureBuilder(
-            future: reqeust('homePageContent', formData),
+            future: reqeust('homePageContent', formData: formData),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 var data = json.decode(snapshot.data.toString());
@@ -59,30 +64,130 @@ class _HomePageState extends State<HomePage>
                 List<Map> floor2 = (data['data']['floor2'] as List).cast();
                 List<Map> floor3 = (data['data']['floor3'] as List).cast();
                 //预防页面超出一屏时出现警告 加上singelChildScrollView
-                return SingleChildScrollView(
+                return EasyRefresh(
+                  refreshFooter: ClassicsFooter(
+                    bgColor: Colors.white,
+                    textColor: Colors.pink,
+                    moreInfoColor: Colors.pink,
+                    showMore: true,
+                    noMoreText: '',
+                    moreInfo: '上拉加载更多',
+                    loadedText: '加载中',
+                    key: _footerkey,
+                  ),
+                  child: ListView(
                     padding: EdgeInsets.only(bottom: 10.0),
-                    child: Column(
-                      children: <Widget>[
-                        SwiperDiy(swiperDataList: swiper),
-                        TopNavigator(navigatorList: navigatorList),
-                        AdBanner(adPicture: adPicture),
-                        LeaderPhone(
-                            leaderImage: leaderImage, leaderPhone: leaderPhone),
-                        Recommed(recommendList: recommnedList),
-                        FloorTitle(picture_address: floor1Title),
-                        FloorContent(floorGoodsList: floor1),
-                        FloorTitle(picture_address: floor2Title),
-                        FloorContent(floorGoodsList: floor2),
-                        FloorTitle(picture_address: floor3Title),
-                        FloorContent(floorGoodsList: floor3),
-                        HotGoods()
-                      ],
-                    ));
+                    children: <Widget>[
+                      SwiperDiy(swiperDataList: swiper),
+                      TopNavigator(navigatorList: navigatorList),
+                      AdBanner(adPicture: adPicture),
+                      LeaderPhone(
+                          leaderImage: leaderImage, leaderPhone: leaderPhone),
+                      Recommed(recommendList: recommnedList),
+                      FloorTitle(picture_address: floor1Title),
+                      FloorContent(floorGoodsList: floor1),
+                      FloorTitle(picture_address: floor2Title),
+                      FloorContent(floorGoodsList: floor2),
+                      FloorTitle(picture_address: floor3Title),
+                      FloorContent(floorGoodsList: floor3),
+                      // HotGoods()
+                      _hotGoods(),
+                    ],
+                  ),
+                  loadMore: () async {
+                    print('加载更多');
+                    var formData = {'page': page};
+                    await reqeust('homePageBelowConten', formData: formData)
+                        .then((res) {
+                      var data = json.decode(res.toString());
+                      List<Map> newGoods = (data['data'] as List).cast();
+                      // print(newGoods);
+                      setState(() {
+                        hotGoodsList.addAll(newGoods);
+                        page++;
+                      });
+                    });
+                  },
+                );
               } else {
                 return Center(child: Text('加载中。。。'));
               }
             },
           )),
+    );
+  }
+
+  void _getHotGoods() {
+    var formData = {'page': page};
+    reqeust('homePageBelowConten', formData: formData).then((res) {
+      var data = json.decode(res.toString());
+      List<Map> newGoods = (data['data'] as List).cast();
+      // print(newGoods);
+      setState(() {
+        hotGoodsList.addAll(newGoods);
+        page++;
+      });
+    });
+  }
+
+  Widget hotTitle = Container(
+    margin: EdgeInsets.only(top: 10.0),
+    alignment: Alignment.center,
+    color: Colors.transparent,
+    child: Text('火爆专区'),
+    padding: EdgeInsets.all(5.0),
+  );
+
+  Widget _wrapList() {
+    if (hotGoodsList.length != 0) {
+      List<Widget> listWidget = hotGoodsList.map((val) {
+        return InkWell(
+          onTap: () {},
+          child: Container(
+            width: ScreenUtil().setWidth(372),
+            color: Colors.white,
+            padding: EdgeInsets.all(5.0),
+            margin: EdgeInsets.only(bottom: 3.0),
+            child: Column(
+              children: <Widget>[
+                Image.network(val['image'], width: ScreenUtil().setWidth(370)),
+                Text('${val['name']}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: Colors.pink, fontSize: ScreenUtil().setSp(26))),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text('￥${val["mallPrice"]}'),
+                    Text(
+                      '￥${val['price']}',
+                      style: TextStyle(
+                          color: Colors.black26,
+                          decoration: TextDecoration.lineThrough),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      }).toList();
+      //流式布局
+      return Wrap(
+          //一行的列数
+          spacing: 2,
+          children: listWidget);
+    } else {
+      return Text('暂无数据');
+    }
+  }
+
+  Widget _hotGoods() {
+    return Container(
+      child: Column(
+        children: <Widget>[hotTitle, _wrapList()],
+      ),
     );
   }
 }
@@ -143,6 +248,7 @@ class TopNavigator extends StatelessWidget {
         height: ScreenUtil().setHeight(320),
         padding: EdgeInsets.all(3.0),
         child: GridView.count(
+          physics: NeverScrollableScrollPhysics(),
           crossAxisCount: 5,
           padding: EdgeInsets.all(5.0),
           children: navigatorList.map((item) {
@@ -324,23 +430,23 @@ class FloorContent extends StatelessWidget {
   }
 }
 
-class HotGoods extends StatefulWidget {
-  _HotGoods createState() => _HotGoods();
-}
+// class HotGoods extends StatefulWidget {
+//   _HotGoods createState() => _HotGoods();
+// }
 
-class _HotGoods extends State<HotGoods> {
-  @override
-  void initState() {
-    super.initState();
-    reqeust('homePageBelowConten', 1).then((val) {
-      print(val);
-    });
-  }
+// class _HotGoods extends State<HotGoods> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     reqeust('homePageBelowConten', formData: 1).then((val) {
+//       print(val);
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Text('ceshi'),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Text('ceshi'),
+//     );
+//   }
+// }

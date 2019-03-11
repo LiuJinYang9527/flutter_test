@@ -13,7 +13,7 @@ Future getHomePageContent() async {
     Dio dio = new Dio();
     dio.options.contentType =
         ContentType.parse("application/x-www-form-urlencoded");
-
+    var formData = {"lon": "113.6313915479", "lat": "34.7533581487"};
     response = await dio.post(servicePath['homePageContent'], data: formData);
     if (response.statusCode == 200) {
       var data = json.decode(response.data.toString());
@@ -57,7 +57,7 @@ Future getHomePageBeloConten(int page) async {
 }
 
 //通用request
-Future reqeust(url, formData) async {
+Future reqeust(url, {formData}) async {
   try {
     print('开始获取数据。。。');
     Response response;
@@ -72,7 +72,7 @@ Future reqeust(url, formData) async {
 
     if (response.statusCode == 200) {
       var data = json.decode(response.data.toString());
-      print(data);
+      // print(data);
       if (int.parse(data['code']) != -1) {
         return response.data;
       } else {
