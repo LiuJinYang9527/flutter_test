@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import "../service/service_method.dart";
-import "../config/service_url.dart";
 import "dart:convert";
 import "../model/category.dart";
 import "package:flutter_screenutil/flutter_screenutil.dart";
@@ -18,9 +17,14 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text('分类页面'),
+    return  Scaffold(
+      appBar: AppBar(title:Text('商品分類')),
+      body: Container(
+        child: Row(
+          children: <Widget>[
+            LeftCategoryNavState()
+          ],
+        ),
       ),
     );
   }
@@ -43,7 +47,18 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Container(),
+      child: Container(
+        width: ScreenUtil().setWidth(180),
+        decoration: BoxDecoration(
+          border: Border(right: BorderSide(color:Colors.black12,width: 1))
+        ),
+        child: ListView.builder(
+          itemCount: list.length,
+          itemBuilder: (BuildContext context, int index) {
+          return _leftInkWell(index);
+         },
+        ),
+      ),
     );
   }
 
@@ -52,12 +67,12 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
       onTap: () {},
       child: Container(
         height: ScreenUtil().setHeight(100),
-        padding: EdgeInsets.only(left: 10.0, top: 20.0),
+        padding: EdgeInsets.only(left: 10.0, top: 10.0),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Colors.black12, width: 1)),
         ),
-        child: Text(list[index].mallCategoryName),
+        child: Text(list[index].mallCategoryName,style:TextStyle(fontSize: ScreenUtil().setSp(28))),
       ),
     );
   }
