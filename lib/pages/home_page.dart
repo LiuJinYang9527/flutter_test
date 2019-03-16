@@ -160,11 +160,7 @@ class _HomePageState extends State<HomePage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text('￥${val["mallPrice"]}'),
-                    Text(
-                      '￥${val['price']}',
-                      style: TextStyle(
-                          color: Colors.black26,
-                          decoration: TextDecoration.lineThrough),
+                    Text('￥${val['price']}',style: TextStyle(color: Colors.black26,decoration: TextDecoration.lineThrough),
                     )
                   ],
                 )
@@ -321,7 +317,7 @@ class Recommed extends StatelessWidget {
       child: Container(
         height: ScreenUtil().setHeight(330),
         width: ScreenUtil().setWidth(250),
-        padding: EdgeInsets.all(8.0),
+        // padding: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
             color: Colors.white,
             border: Border(left: BorderSide(width: 1, color: Colors.black12))),
@@ -340,7 +336,7 @@ class Recommed extends StatelessWidget {
 
   Widget _recommedList() {
     return Container(
-      height: ScreenUtil().setHeight(348),
+      height: ScreenUtil().setHeight(363),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: recommendList.length,
