@@ -3,6 +3,8 @@ import "../service/service_method.dart";
 import "dart:convert";
 import "../model/category.dart";
 import "package:flutter_screenutil/flutter_screenutil.dart";
+import "package:provide/provide.dart";
+import "../provide/child_category.dart";
 
 class CategoryPage extends StatefulWidget {
   _CategoryPageState createState() => _CategoryPageState();
@@ -22,7 +24,12 @@ class _CategoryPageState extends State<CategoryPage> {
       body: Container(
         child: Row(
           children: <Widget>[
-            LeftCategoryNavState()
+            LeftCategoryNavState(),
+            Column(
+              children: <Widget>[
+                 _RightCategory()
+              ],
+            )
           ],
         ),
       ),
@@ -37,6 +44,7 @@ class LeftCategoryNavState extends StatefulWidget {
 
 class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
   List list = [];
+  int ListIndex = 0;
   @override
   void initState() {
     // TODO: implement initState
@@ -63,13 +71,21 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
   }
 
   Widget _leftInkWell(int index) {
+    bool isClick = false;
+    isClick = (index == ListIndex)?true:false;
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        var childList = list[index].bxMallSubDto;
+        setState(() {
+         ListIndex = index; 
+        });
+        Provide.value<ChildCategory>(context).getChildCategory(childList);
+      },
       child: Container(
         height: ScreenUtil().setHeight(100),
         padding: EdgeInsets.only(left: 10.0, top: 10.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isClick ? Colors.black12:Colors.white,
           border: Border(bottom: BorderSide(color: Colors.black12, width: 1)),
         ),
         child: Text(list[index].mallCategoryName,style:TextStyle(fontSize: ScreenUtil().setSp(28))),
@@ -83,10 +99,61 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
       CategoryModel category = CategoryModel.fromJson(data);
       setState(() {
         list = category.data;
+        Provide.value<ChildCategory>(context).getChildCategory(list[ListIndex].bxMallSubDto);
       });
       // list.data.forEach((item){
       //   print(item.mallCategoryName);
       // });
     });
+  }
+}
+
+//右侧横向滚动导航
+class _RightCategory extends StatefulWidget {
+
+
+  __RightCategoryState createState() => __RightCategoryState();
+}
+
+
+class __RightCategoryState extends State<_RightCategory> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Provide<ChildCategory>(
+      builder: (context,child,childCategory){
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(bottom:BorderSide(width: 1,color:Colors.black12))
+          ),
+          height:ScreenUtil().setHeight(100),
+          width:ScreenUtil().setWidth(570),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: childCategory.childCategoryList.length,
+            itemBuilder: (context,index){
+              return _rightInkell(childCategory.childCategoryList[index]);
+            },
+          ),
+        );
+      }
+    );
+  }
+
+  Widget  _rightInkell (BxMallSubDto item) {
+    return InkWell(
+      onTap:(){
+        
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 10.0),
+        child: Text(item.mallSubName,style:TextStyle(fontSize: ScreenUtil().setSp(28))
+      ),
+    ));
   }
 }
