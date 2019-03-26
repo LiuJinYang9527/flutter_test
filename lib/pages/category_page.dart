@@ -79,7 +79,7 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
           ListIndex = index;
         });
         var cateGoryId = list[index].mallCategoryId;
-        Provide.value<ChildCategory>(context).getChildCategory(childList);
+        Provide.value<ChildCategory>(context).getChildCategory(childList,cateGoryId);
         _getGoodsList(categoryId: cateGoryId);
       },
       child: Container(
@@ -102,7 +102,7 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
       setState(() {
         list = category.data;
         Provide.value<ChildCategory>(context)
-            .getChildCategory(list[ListIndex].bxMallSubDto);
+            .getChildCategory(list[ListIndex].bxMallSubDto,list[ListIndex].mallCategoryId);
       });
       // list.data.forEach((item){
       //   print(item.mallCategoryName);
@@ -113,7 +113,7 @@ class _LeftCategoryNavStateState extends State<LeftCategoryNavState> {
   void _getGoodsList({String categoryId}) async {
     var data = {
       "categoryId": categoryId == null ? '4' : categoryId,
-      "CategorySubId": '',
+      "categorySubId": '',
       "page": 1,
     };
     await reqeust('getMallGoods', formData: data).then((res) {
@@ -131,6 +131,7 @@ class _RightCategory extends StatefulWidget {
 }
 
 class __RightCategoryState extends State<_RightCategory> {
+  int clickIndex = 0;
   @override
   void initState() {
     // TODO: implement initState
@@ -151,21 +152,43 @@ class __RightCategoryState extends State<_RightCategory> {
             scrollDirection: Axis.horizontal,
             itemCount: childCategory.childCategoryList.length,
             itemBuilder: (context, index) {
-              return _rightInkell(childCategory.childCategoryList[index]);
+              return _rightInkell(childCategory.childCategoryList[index],index);
             }),
       );
     });
   }
 
-  Widget _rightInkell(BxMallSubDto item) {
+  Widget _rightInkell(BxMallSubDto item,int index) {
+    bool isClick = false;
+    isClick = (index ==Provide.value<ChildCategory>(context).childIndex ? true:false);
     return InkWell(
-        onTap: () {},
+        onTap: () {
+          Provide.value<ChildCategory>(context).changeChildIndex(index,item.mallSubId);
+          _getGoodsList(categorySubId:item.mallSubId);
+        },
         child: Container(
           padding: EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 10.0),
           child: Text(item.mallSubName,
-              style: TextStyle(fontSize: ScreenUtil().setSp(28))),
+              style: TextStyle(fontSize: ScreenUtil().setSp(28),color:isClick?Colors.pink:Colors.black)),
         ));
   }
+    void _getGoodsList({String categorySubId}) async {
+    var data = {
+      "categoryId":Provide.value<ChildCategory>(context).categoryId,
+      "categorySubId": categorySubId,
+      "page": 1,
+    };
+    await reqeust('getMallGoods', formData: data).then((res) {
+        var data = json.decode(res.toString());
+        CategoryGoodListModel goodData = CategoryGoodListModel.fromJson(data);
+      if(goodData.data == null){
+         Provide.value<CategoryGoodsListProvide>(context) .getGoodsList([]);
+      }else{
+         Provide.value<CategoryGoodsListProvide>(context) .getGoodsList(goodData.data);
+      }
+    });
+  }
+  
 }
 
 //分类商品列表
@@ -184,16 +207,24 @@ class _CategoryGoodListState extends State<CategoryGoodList> {
   @override
   Widget build(BuildContext context) {
     return Provide<CategoryGoodsListProvide>(builder: (context, child, data) {
-      return Expanded(
-        child: Container(
-          width: ScreenUtil().setWidth(570),
-          child: ListView.builder(
-              itemCount: data.goodsList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _ListItemWidget(data.goodsList, index);
-              }),
-        ),
-      );
+      if(data.goodsList.length > 0){
+          return Expanded(
+            child: Container(
+              width: ScreenUtil().setWidth(570),
+              child: ListView.builder(
+                  itemCount: data.goodsList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _ListItemWidget(data.goodsList, index);
+                  }),
+            ),
+          );
+      }else{
+          return Expanded(
+            child: Center(
+                child: Text('暂无数据')
+              )
+          );
+      }
     });
   }
 
