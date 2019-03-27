@@ -71,8 +71,8 @@ class _HomePageState extends State<HomePage>
                     moreInfoColor: Colors.pink,
                     showMore: true,
                     noMoreText: '',
-                    moreInfo: '上拉加载更多',
-                    loadedText: '加载中',
+                    moreInfo: '加载中',
+                    loadedText: '上拉加载更多',
                     key: _footerkey,
                   ),
                   child: ListView(
