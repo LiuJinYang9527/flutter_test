@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:provide/provide.dart";
 import "../provide/details_info.dart";
-
+import "./details_top_area.dart";
 class DetailsPage extends StatelessWidget {
   String goodsId = '0';
   DetailsPage(this.goodsId);
@@ -22,7 +22,11 @@ class DetailsPage extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Container(
-                child: Text('${goodsId}'),
+                child:Column(
+                  children: <Widget>[
+                    DetailTopArea()
+                  ],
+                )
               );
             } else {
               return Text('加载中。。。');
