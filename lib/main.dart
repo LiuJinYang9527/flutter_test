@@ -4,6 +4,7 @@ import "package:provide/provide.dart";
 import "./provide/counter.dart";
 import "./provide/child_category.dart";
 import "./provide/category_goods_list.dart";
+import "./provide/details_info.dart";
 import "package:fluro/fluro.dart";
 import "./router/routers.dart";
 import "./router/application.dart";
@@ -12,13 +13,15 @@ void main() {
   var counter = new Counter();
   var childCategory = new ChildCategory();
   var categoryGoodsListProvide = new CategoryGoodsListProvide();
+  var detailsInfoProvide = new DetailsInfoProvide();
   var providers = Providers();
 
   providers
     ..provide(Provider<Counter>.value(counter))
     ..provide(Provider<ChildCategory>.value(childCategory))
     ..provide(
-        Provider<CategoryGoodsListProvide>.value(categoryGoodsListProvide));
+        Provider<CategoryGoodsListProvide>.value(categoryGoodsListProvide))
+    ..provide(Provider<DetailsInfoProvide>.value(detailsInfoProvide));
   runApp(ProviderNode(child: MyApp(), providers: providers));
 }
 
