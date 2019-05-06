@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:provide/provide.dart";
-import "../provide/details_info.dart";
+import "../../provide/details_info.dart";
 import "package:flutter_screenutil/flutter_screenutil.dart";
 
 class DetailTopArea extends StatelessWidget {

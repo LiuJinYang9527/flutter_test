@@ -1,7 +1,10 @@
 import "package:flutter/material.dart";
 import "package:provide/provide.dart";
 import "../provide/details_info.dart";
-import "./details_top_area.dart";
+import "./detailPages/details_top_area.dart";
+import "./detailPages/detail_explain.dart";
+import "./detailPages/details_tabbar.dart";
+
 class DetailsPage extends StatelessWidget {
   String goodsId = '0';
   DetailsPage(this.goodsId);
@@ -22,12 +25,13 @@ class DetailsPage extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Container(
-                child:Column(
-                  children: <Widget>[
-                    DetailTopArea()
-                  ],
-                )
-              );
+                  child: ListView(
+                children: <Widget>[
+                  DetailTopArea(),
+                  DetailsExplain(),
+                  DetailsTabBar()
+                ],
+              ));
             } else {
               return Text('加载中。。。');
             }
