@@ -52,7 +52,7 @@ class DetailTopArea extends StatelessWidget {
       width: ScreenUtil().setWidth(750),
       padding: EdgeInsets.only(left: 15.0),
       margin: EdgeInsets.only(top: 8.0),
-      child: Text('id:${id}',
+      child: Text('编号:${id}',
           style: TextStyle(
               color: Colors.black12, fontSize: ScreenUtil().setSp(26))),
     );
@@ -66,12 +66,12 @@ class DetailTopArea extends StatelessWidget {
       margin: EdgeInsets.only(top: 8.0),
       child: Row(
         children: <Widget>[
-          Text('售价:${salesPrice}',
+          Text('售价:￥${salesPrice}',
               style: TextStyle(
                   color: Colors.red, fontSize: ScreenUtil().setSp(26))),
           Container(
             margin: EdgeInsets.only(left: 100.0),
-            child: Text('原价:${originPrice}',
+            child: Text('原价:￥${originPrice}',
                 style: TextStyle(
                     color: Colors.black12,
                     decoration: TextDecoration.lineThrough,
