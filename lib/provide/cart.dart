@@ -40,7 +40,8 @@ class CartProvide with ChangeNotifier {
 
     cartString = json.encode(tempList).toString();
     prefs.setString('cartInfo', cartString);
-    notifyListeners();
+    // notifyListeners();
+    await getCartInfo();
   }
 
   remove() async {
@@ -147,7 +148,7 @@ class CartProvide with ChangeNotifier {
       cartItem.count--;
     }
     tempList[changeIndex] = cartItem.toJson();
-    cartString =  json.encode(tempList).toString();
+    cartString = json.encode(tempList).toString();
     prefs.setString('cartInfo', cartString);
     await getCartInfo();
   }
