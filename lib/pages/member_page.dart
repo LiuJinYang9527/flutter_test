@@ -9,7 +9,12 @@ class MemberPage extends StatelessWidget {
           title: Text('会员中心'),
         ),
         body: ListView(
-          children: <Widget>[_topHeader(), _orderTitle(), _orderType(),_actionList()],
+          children: <Widget>[
+            _topHeader(),
+            _orderTitle(),
+            _orderType(),
+            _actionList()
+          ],
         ));
   }
 
